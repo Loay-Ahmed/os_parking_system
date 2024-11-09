@@ -15,11 +15,12 @@ public class Car extends Thread {
     private int[] parseString(String carString) {
         // Gate 1, Car 0, Arrive 0, Parks 3
         String[] carData = carString.split(",");
-        int[  ] carValues = new int[];
+        int[] carValues = new int[4];
         for (int i = 0; i < carData.length; i++) {
-            int carval = Integer.parseInt(carData[i].substring(carData[i].length() - 1));
-            carValues[i] = carval;
+            int carVal = Integer.parseInt(carData[i].substring(carData[i].length() - 1));
+            carValues[i] = carVal;
         }
+        return carValues;
     }
 
     public void run() {
