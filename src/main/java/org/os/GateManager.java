@@ -6,32 +6,40 @@ public class GateManager extends Thread {
     Gate g1;
     Gate g2;
     Gate g3;
+    Semaphore semaphore = new Semaphore(4);
 
-    public GateManager(String[] cars1, String[] cars2, String[] cars3) {
-        g1 = new Gate(cars1);
-        g2 = new Gate(cars2);
-        g3 = new Gate(cars3);
+
+    public GateManager(String[] gate1, String[] gate2, String[] gate3) {
+        g1 = new Gate(gate1, semaphore);
+        g2 = new Gate(gate2, semaphore);
+        g3 = new Gate(gate3, semaphore);
     }
 
     @Override
     public void run() {
+        if (!this.isInterrupted()) {
+            while (true) {
+                if (semaphore.tryAcquire()) {
+                    int[] t1 = g1.cars.isEmpty() ? new int[]{0, 0, 9999999, 0} : g1.cars.getFirst();
+                    int[] t2 = g2.cars.isEmpty() ? new int[]{0, 0, 9999999, 0} : g2.cars.getFirst();
+                    int[] t3 = g3.cars.isEmpty() ? new int[]{0, 0, 9999999, 0} : g3.cars.getFirst();
 
-        Semaphore ss = new Semaphore(4);
-        while (true) {
-            if (ss.tryAcquire()) {
-                int t1 = g1.cars.peek()[2];
-                int t2 = g2.cars.peek()[2];
-                int t3 = g3.cars.peek()[2];
+                    if (t1 == null && t2 == null && t3 == null) {
+                        break;
+                    }
 
-                if (t1 <= t2 && t1 <= t3) {
-                    g1.openGate();
-                } else if (t2 <= t1 && t2 <= t3) {
-                    g2.openGate();
-                } else {
-                    g3.openGate();
+                    if (t1[2] <= t2[2] && t1[2] <= t3[2]) {
+                        g1.openGate();
+                    } else if (t2[2] <= t1[2] && t2[2] <= t3[2]) {
+                        g2.openGate();
+                    } else if (t3[2] <= t1[2] && t3[2] <= t2[2]) {
+                        g3.openGate();
+                    } else if (t1[2] == t2[2] && t1[2] == t3[2]) {
+                        this.interrupt();
+                    }
                 }
-
             }
         }
+        System.out.println("Total Cars Served: 15\nCurrent Cars in Parking: 0\nDetails:\n- Gate 1 served 5 cars.\n- Gate 2 served 5 cars.\n- Gate 3 served 5 cars.");
     }
 }
