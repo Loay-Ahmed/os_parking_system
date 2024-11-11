@@ -12,13 +12,13 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the file name: ");
 
-        String input = scanner.nextLine();
+//        String input = scanner.nextLine();
         List<String> Gate1Cars = new ArrayList<>();
         List<String> Gate2Cars = new ArrayList<>();
         List<String> Gate3Cars = new ArrayList<>();
 
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(input))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("input.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.startsWith("Gate 1")) {
@@ -32,13 +32,13 @@ public class Main {
                 }
             }
         } catch (IOException e) {
-            System.out.println("File not found -> " + input);
+            System.out.println("File not found -> ");
             return;
         }
         String[] gate1Array = Gate1Cars.toArray(new String[Gate1Cars.toArray().length]);
         String[] gate2Array = Gate2Cars.toArray(new String[Gate2Cars.toArray().length]);
         String[] gate3Array = Gate3Cars.toArray(new String[Gate3Cars.toArray().length]);
-        Thread gateManager = new GateManager(gate1Array, gate2Array, gate3Array);
+        Thread gateManager = new ParkingManager(gate1Array, gate2Array, gate3Array);
         gateManager.start();
 
         try {

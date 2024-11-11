@@ -1,13 +1,12 @@
 package org.os;
 
-import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 
-public class Gate {
+public class Gate extends Thread {
 
     public final Vector<int[]> cars = new Vector<>();
-    private final Thread thread = new Thread(this::run);
+    //    private final Thread thread = new Thread(this::run);
     private int time = 0;
     private final Semaphore semaphore;
 
@@ -17,7 +16,7 @@ public class Gate {
             this.cars.add(parseString(car));
         }
         this.sort();
-        thread.start();
+//        thread.start();
     }
 
     private void sort() {
@@ -36,38 +35,11 @@ public class Gate {
         return carValues;
     }
 
-    public synchronized void openGate() {
-        if (!cars.isEmpty()) {
-            int[] carData = cars.get(0);
-            cars.remove(0);
-            Thread carThread = new Car(carData, semaphore);
-            System.out.println("Car " + carData[1] + " from Gate " + carData[0] +
-                    " parked after waiting for " + (time - carData[2]) +
-                    " units of time. (Parking Status: " + (4 - semaphore.availablePermits()) + " spots occupied)");
+    @Override
+    public void run() {
+        for (int[] car : this.cars) {
+            Thread carThread = new Car(car, semaphore);
             carThread.start();
-        }
-    }
-
-    private void run() {
-        while (!cars.isEmpty()) {
-            synchronized (this) {
-                Iterator<int[]> iterator = cars.iterator();
-                while (iterator.hasNext()) {
-                    int[] car = iterator.next();
-                    if (car[2] == time) {
-                        System.out.println("Car " + car[1] + " from Gate " + car[0] +
-                                " arrived at time " + car[2]);
-                        try {
-                            Thread.sleep(1000);
-                            time++;
-                            iterator.remove();  // Safely remove the car
-                            break;
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
         }
     }
 }
